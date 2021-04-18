@@ -79,17 +79,8 @@ class ResetPasswordTest extends TestCase
             'password' => 'Password123',
         ]);
 
-        $response->assertStatus(200)
-        ->assertJsonStructure([
-            "data" => [
-                'id',
-                'name',
-                'email',
-                'created_at',
-            ],
-            "access_token",
-            "token_type",
-        ]);
+        $response->assertJsonPath('status', 200)
+        ->assertJsonPath('success', true);
 
         $this->assertAuthenticatedAs($user);
     }

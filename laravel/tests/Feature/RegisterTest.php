@@ -32,15 +32,8 @@ class RegisterTest extends TestCase
             'password' => 'Password1',
         ]);
 
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                "data" => [
-                    'id',
-                    'name',
-                    'email',
-                    'created_at',
-                ]
-            ]);
+        $response->assertJsonPath('status', 200)
+        ->assertJsonPath('success', true);
     }
 
     public function testUserHasBeenTaken()

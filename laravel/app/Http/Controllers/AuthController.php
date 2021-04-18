@@ -7,7 +7,6 @@ use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
 use App\Http\Requests\AuthResetPasswordRequest;
 use App\Http\Requests\AuthVerifyEmailRequest;
-use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 
 class AuthController extends Controller
@@ -30,7 +29,6 @@ class AuthController extends Controller
      *
      * @param  AuthLoginRequest $request
      * @throws LoginInvalidException
-     * @return UserResource
      */
     public function login(AuthLoginRequest $request)
     {
@@ -38,22 +36,23 @@ class AuthController extends Controller
     
         $token = $this->service->login($inputs);
 
-        return ( new UserResource(auth()->user()))->additional($token);
+        $user = auth()->user();
+
+        return responder()->success([$user, $token])->respond();
     }
     
     /**
      * register
      *
      * @param  AuthRegisterRequest $request
-     * @return UserResource
      */
     public function register(AuthRegisterRequest $request)
     {
         $inputs = $request->validated();
 
         $user = $this->service->register($inputs);
-
-        return new UserResource($user);
+        
+        return responder()->success($user->toArray())->respond();
     }
     
     /**
@@ -61,7 +60,6 @@ class AuthController extends Controller
      *
      * @param  AuthVerifyEmailRequest $request
      * @throws VerifyEmailTokenInvalidException
-     * @return UserResource
      */
     public function verifyEmail(AuthVerifyEmailRequest $request)
     {
@@ -69,7 +67,7 @@ class AuthController extends Controller
 
         $user = $this->service->verifyEmail($input["token"]);
 
-        return new UserResource($user);
+        return responder()->success($user->toArray())->respond();
     }
     
     /**
@@ -89,6 +87,6 @@ class AuthController extends Controller
     {
         $inputs = $request->validated();
 
-        return $this->service->resetPassword($inputs);
+        return$this->service->resetPassword($inputs);
     }
 }
