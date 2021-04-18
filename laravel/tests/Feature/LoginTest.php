@@ -52,16 +52,17 @@ class LoginTest extends TestCase
 
     public function testEmaildInvalidFormat()
     {
-        User::factory()->create([
+        $this->postJson('api/v1/auth/register', [
+            'name' => 'Júlio',
             'email' => 'teste@mail.com',
-            'password' => bcrypt('password'),
+            'password' => 'Password1',
         ]);
 
         $response = $this->postJson('api/v1/auth/login', [
             'email' => 'teste.mail.com',
             'password' => 'password',
         ]);
-
+            
         $response->assertStatus(422)
             ->assertJson([
                 "message" => "The given data was invalid.",
