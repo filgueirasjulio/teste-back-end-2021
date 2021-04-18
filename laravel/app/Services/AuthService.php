@@ -2,12 +2,16 @@
 
 namespace App\Services;
 
-use App\Events\UserRegistered;
+use App\Events\ForgotPassword;
 use App\Models\User;
 use Illuminate\Support\Str;
+use App\Events\UserRegistered;
 use App\Exceptions\LoginInvalidException;
+use App\Exceptions\ResetPasswordTokenInvalidException;
+use App\Models\PasswordReset;
 use App\Exceptions\UserHasBeenTakenException;
 use App\Exceptions\VerifyEmailTokenInvalidException;
+
 
 class AuthService
 {    
@@ -77,5 +81,42 @@ class AuthService
         $user->save();
 
         return $user;
+    }
+    
+    /**
+     * forgotPassword
+     *
+     * @param  string $email
+     * @return void
+     */
+    public function forgotPassword(string $email)
+    {
+        $user = User::where('email', $email)->firstOrFail();
+        $token = Str::random(60);
+
+        PasswordReset::create([
+            'email' => $user->email,
+            'token' => $token
+        ]);
+
+        event(new ForgotPassword($user, $token));
+
+        return '';
+    }
+
+    public function resetPassword(array $inputs)
+    {
+        $passwordReset = PasswordReset::where('email', $inputs["email"])->where('token', $inputs["token"])->first();
+        if (empty($passwordReset)) {
+            throw new ResetPasswordTokenInvalidException();
+        }
+
+        $user = User::where('email', $inputs["email"])->firstOrFail();
+        $user->password = bcrypt($inputs["password"]);
+        $user->save();
+
+        PasswordReset::where('email', $inputs["email"])->delete();
+
+        return '';
     }
 }

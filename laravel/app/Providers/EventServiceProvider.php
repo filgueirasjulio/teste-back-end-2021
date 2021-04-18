@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\ForgotPassword;
 use App\Events\UserRegistered;
+use App\Listeners\SendForgotPasswordNotification;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use App\Listeners\SendWelcomeNotification;
@@ -19,6 +21,10 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         UserRegistered::class => [
             SendWelcomeNotification::class,
+        ],
+
+        ForgotPassword::class => [
+            SendForgotPasswordNotification::class,
         ]
     ];
 
