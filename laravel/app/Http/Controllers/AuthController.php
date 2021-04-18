@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthLoginRequest;
+use App\Http\Requests\AuthRegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
-use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -31,10 +31,26 @@ class AuthController extends Controller
      */
     public function login(AuthLoginRequest $request)
     {
-        $input = $request->validated();
+        $inputs = $request->validated();
     
-        $token = $this->service->login($input['email'], $input['password']);
+        $token = $this->service->login($inputs);
 
         return ( new UserResource(auth()->user()))->additional($token);
+    }
+    
+    /**
+     * register
+     *
+     * @param  AuthRegisterRequest $request
+     * @throws UserHasBeenTaken
+     * @return UserResource
+     */
+    public function register(AuthRegisterRequest $request)
+    {
+        $inputs = $request->validated();
+
+        $user = $this->service->register($inputs);
+
+        return new UserResource($user);
     }
 }

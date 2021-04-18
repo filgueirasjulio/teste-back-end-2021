@@ -10,15 +10,15 @@ class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testInputsEmailPasswordEmptys()
+    public function testInputsEmptysLogin()
     {
-        $this->json('POST', 'api/v1/auth/login')
+        $this->postJson('api/v1/auth/login')
             ->assertStatus(422)
             ->assertJson([
                 "message" => "The given data was invalid.",
                 "errors" => [
-                    'email' => ["The email field is required."],
-                    'password' => ["The password field is required."],
+                    'email' => [__('validation.required', ['attribute' => 'email'])],
+                    'password' => [__('validation.required', ['attribute' => 'password'])]
                 ]
             ]);
     }
@@ -29,24 +29,65 @@ class LoginTest extends TestCase
             'email' => 'teste@mail.com',
             'password' => bcrypt('password'),
         ]);
-        
-        $response = $this->post('api/v1/auth/login', [
+
+        $response = $this->postJson('api/v1/auth/login', [
             'email' => 'teste@mail.com',
             'password' => 'password',
         ]);
-       
-       $response->assertStatus(200)
-                ->assertJsonStructure([
-                    "data" => [
-                        'id',
-                        'name',
-                        'email',
-                        'created_at',
-                    ],
-                    "access_token",
-                    "token_type",
-                ]);
 
-       $this->assertAuthenticatedAs($user);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "data" => [
+                    'id',
+                    'name',
+                    'email',
+                    'created_at',
+                ],
+                "access_token",
+                "token_type",
+            ]);
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function testEmaildInvalidFormat()
+    {
+        User::factory()->create([
+            'email' => 'teste@mail.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $response = $this->postJson('api/v1/auth/login', [
+            'email' => 'teste.mail.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                "message" => "The given data was invalid.",
+                "errors" => [
+                    'email' => [__('validation.email', ['attribute' => 'email'])]
+                ]
+            ]);
+    }
+
+    public function testEmailOrPasswordIncorrect()
+    {
+        User::factory()->create([
+            'email' => 'teste@mail.com',
+            'password' => bcrypt('password'),
+        ]);
+
+
+        $response = $this->postJson('api/v1/auth/login', [
+            'email' => 'teste2@mail.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJson([
+                "error" => "LoginInvalidException",
+                "message" => "Email and password don't match"
+            ]);
     }
 }
