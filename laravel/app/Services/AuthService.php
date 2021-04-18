@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Events\UserRegistered;
+use App\Models\User;
+use Illuminate\Support\Str;
 use App\Exceptions\LoginInvalidException;
 use App\Exceptions\UserHasBeenTakenException;
-use App\Models\User;
 
 class AuthService
 {    
@@ -48,7 +50,10 @@ class AuthService
             'name' => $inputs["name"],
             'email'=> $inputs["email"],
             'password' => $userPassword,
+            'confirmation_token' => Str::random(60)
         ]);
+    
+        event(new UserRegistered($user));
 
         return $user;
     }
