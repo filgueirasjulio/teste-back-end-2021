@@ -12,7 +12,7 @@ use App\Services\AuthService;
 class AuthController extends Controller
 {
     private $service;
-    
+
     /**
      * __construct
      *
@@ -23,7 +23,7 @@ class AuthController extends Controller
     {
         $this->service = $service;
     }
-    
+
     /**
      * login
      *
@@ -33,14 +33,14 @@ class AuthController extends Controller
     public function login(AuthLoginRequest $request)
     {
         $inputs = $request->validated();
-    
+
         $token = $this->service->login($inputs);
 
         $user = auth()->user();
 
         return responder()->success([$user, $token])->respond();
     }
-    
+
     /**
      * register
      *
@@ -51,10 +51,10 @@ class AuthController extends Controller
         $inputs = $request->validated();
 
         $user = $this->service->register($inputs);
-        
+
         return responder()->success($user->toArray())->respond();
     }
-    
+
     /**
      * verifyEmail
      *
@@ -69,7 +69,7 @@ class AuthController extends Controller
 
         return responder()->success($user->toArray())->respond();
     }
-    
+
     /**
      * forgotPassword
      *
@@ -87,6 +87,20 @@ class AuthController extends Controller
     {
         $inputs = $request->validated();
 
-        return$this->service->resetPassword($inputs);
+        return $this->service->resetPassword($inputs);
+    }
+
+    public function logout()
+    {
+        auth()->logout();
+
+        return responder()->success(['Usuário deslogado com sucesso'])->respond();
+    }
+
+    public function refresh()
+    {
+        $newToken = auth()->refresh();
+
+        return responder()->success(['Novo token gerado com sucesso'])->respond();
     }
 }

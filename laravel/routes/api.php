@@ -11,6 +11,8 @@ Route::prefix('v1')->group(function(){
     Route::post('auth/verify-email', [AuthController::class, 'verifyEmail']);
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::post('auth/refresh', [AuthController::class, 'refresh']);
 
     //Me routes
    Route::prefix('me')->group(function() {
