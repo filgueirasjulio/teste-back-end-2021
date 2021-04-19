@@ -18,5 +18,7 @@ class UserSeeder extends Seeder
             'name' => 'Júlio Filgueiras',
             'email' => 'admin@admin.com'
         ]);
+
+        User::factory()->count(5)->create();
     }
 }
