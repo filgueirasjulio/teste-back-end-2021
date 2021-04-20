@@ -81,13 +81,17 @@ class AuthController extends Controller
         $input = $request->validated();
 
         $this->service->forgotPassword($input["email"]);
+        
+        return responder()->success(['E-mail para recuperação de senha enviado!'])->respond();
     }
 
     public function resetPassword(AuthResetPasswordRequest $request)
     {
         $inputs = $request->validated();
 
-        return $this->service->resetPassword($inputs);
+        $this->service->resetPassword($inputs);
+
+        return responder()->success(['Senha recuperada com sucesso'])->respond();
     }
 
     public function logout()

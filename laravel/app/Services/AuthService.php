@@ -100,7 +100,7 @@ class AuthService
         ]);
 
         event(new ForgotPassword($user, $token));
-
+        
         return '';
     }
 

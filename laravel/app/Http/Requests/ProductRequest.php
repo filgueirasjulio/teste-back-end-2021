@@ -23,18 +23,11 @@ class ProductRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        return [
             'name' => 'required|string',
             'price' => 'required|between:0,99.99',
             'weight' => 'required|between:0,99.99',
+            'image' =>  'mimes:jpeg,jpg,png,gif|nullable|max:10000'
         ];
-
-        if ($this->method == 'PUT') {
-            $rules['image'] =  'mimes:jpeg,jpg,png,gif|required|max:10000';
-        } else {
-            $rules['image'] =  'mimes:jpeg,jpg,png,gif|nullable|max:10000';
-        }
-
-        return $rules;
     }
 }
