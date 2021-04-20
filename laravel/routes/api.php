@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 
 Route::prefix('v1')->group(function(){
     //Auth routes
@@ -18,6 +19,14 @@ Route::prefix('v1')->group(function(){
    Route::prefix('me')->group(function() {
      Route::get('/', [MeController::class, 'index']);
      Route::put('/update', [MeController::class, 'update']);
+   });
+
+   //Products routes
+   Route::prefix('products')->group(function(){
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/me-products', [ProductController::class, 'userProducts']);
+    Route::post('/create',  [ProductController::class, 'store']);
+    Route::put('/edit/product/{product}',  [ProductController::class, 'update']);
    });
 });
 
