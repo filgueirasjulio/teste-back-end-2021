@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MeUpdateRequest;
 use App\Services\UserService;
+use App\Actions\Users\getMeAction;
+use App\Http\Requests\MeUpdateRequest;
+use App\Transformers\Users\UserTransformer;
 
 class MeController extends Controller
 {
@@ -29,7 +31,7 @@ class MeController extends Controller
     {
         $user = auth()->user();
   
-        return responder()->success($user)->respond();
+        return responder()->success($user, UserTransformer::class)->respond();
     }
     
     /**
@@ -37,11 +39,10 @@ class MeController extends Controller
      *
      * @param  MeUpdateRequest $request
      */
-    public function update(MeUpdateRequest $request)
+    public function update(MeUpdateRequest $request, getMeAction $action)
     {
-        $inputs = $request->validated();
-        $user = $this->service->updateMe(auth()->user(), $inputs);
+        $user = $action->execute(auth()->user(), $request->validated());
 
-        return responder()->success($user)->respond();
+        return responder()->success($user, UserTransformer::class)->respond();
     }
 }
