@@ -5,24 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Services\ProductService;
 use App\Http\Requests\ProductRequest;
+use App\Actions\Products\getProductAction;
+use App\Actions\Products\deleteProductAction;
+use App\Actions\Products\storeProductAction;
+use App\Actions\Products\updateProductAction;
 use App\Transformers\Products\ProductTransformer;
 
 class ProductController extends Controller
 {
-    private $service;
-    
-    /**
-     * __construct
-     *
-     * @param  mixed $service
-     * @return void
-     */
-    public function __construct(ProductService $service)
-    {
-        $this->middleware('auth:api');
-        $this->service = $service;
-    }
-    
     /**
      * index
      *
@@ -50,13 +40,13 @@ class ProductController extends Controller
     /**
      * store
      *
-     * @param ProductStoreRequest $request
+     * @param ProductRequest $request
      */
-    public function store(ProductRequest $request)
+    public function store(ProductRequest $request, storeProductAction $action)
     {
         try {
-            $product = $this->service->store($request);
-      
+            $product = $action->execute($request);
+
             return responder()
             ->success($product, ProductTransformer::class)
             ->meta(['message' => trans('messages.products.created')])
@@ -73,23 +63,12 @@ class ProductController extends Controller
     /**
      * update
      *
-     * @param ProductStoreRequest $request
-     * @param Product $request
+     * @param ProductRequest $request
      */
-    public function update($id, ProductRequest $request)
+    public function update($id, ProductRequest $request, updateProductAction $action)
     {
         try {
-            $product = Product::where('id', $id)->get()->first();
-       
-            if (is_null($product)) {
-                throw new \Exception(trans('messages.products.not_found'), 400);
-            }
-            
-            if ($product->user_id != auth()->user()->id) {    
-                throw new \Exception(trans('messages.products.not_permission'), 400);
-            };
-    
-            $product = $this->service->update($product, $request);
+            $product = $action->execute($id, $request);
           
             return responder()
                    ->success($product, ProductTransformer::class)
@@ -110,21 +89,11 @@ class ProductController extends Controller
      *
      * @param  mixed $id
      */
-    public function destroy($id)
+    public function destroy($id, deleteProductAction $action)
     {
         try {
-            $product = Product::where('id', $id)->get()->first();
-       
-            if (is_null($product)) {
-                throw new \Exception(trans('messages.products.not_found'), 400);
-            }
-            
-            if ($product->user_id != auth()->user()->id) {    
-                throw new \Exception(trans('messages.products.not_permission'), 400);
-            };
-    
-            $product->delete();
-
+            $product = $action->execute($id);
+          
             return responder()
             ->success()
             ->meta(['message' => trans('messages.products.deleted')])
@@ -143,19 +112,10 @@ class ProductController extends Controller
      *
      * @param  mixed $id
      */
-    public function show($id)
+    public function show($id, getProductAction $action)
     {
         try {
-
-            $product = Product::where('id', $id)->get()->first();
-
-            if (is_null($product)) {
-                throw new \Exception(trans('messages.products.not_found'), 400);
-            }
-            
-            if ($product->user_id != auth()->user()->id) {    
-                throw new \Exception(trans('messages.products.not_permission'), 400);
-            };;
+            $product = $action->execute($id);
 
             return responder()->success($product, ProductTransformer::class)->respond();
 
