@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
 use App\Services\ProductService;
 use App\Http\Requests\ProductRequest;
+use App\Transformers\Products\ProductTransformer;
 
 class ProductController extends Controller
 {
@@ -29,9 +29,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $Products = Product::paginate();
+        $products = Product::paginate();
 
-        return responder()->success($Products)->respond();
+        return responder()->success($products, ProductTransformer::class)->respond();
     }
     
     /**
@@ -41,9 +41,10 @@ class ProductController extends Controller
     public function userProducts()
     {
         $id = auth()->user()->id;
-        $Products = Product::where('user_id', $id)->latest()->paginate();
 
-        return responder()->success($Products)->respond();
+        $product = Product::where('user_id', $id)->latest()->paginate();
+
+        return responder()->success($product, ProductTransformer::class)->respond();
     }
     
     /**
@@ -53,9 +54,20 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
-        $product = $this->service->store($request);
-        
-        return responder()->success($product)->respond();
+        try {
+            $product = $this->service->store($request);
+      
+            return responder()
+            ->success($product, ProductTransformer::class)
+            ->meta(['message' => trans('messages.products.created')])
+            ->respond(201);
+
+        }  catch (\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }
     }
     
     /**
@@ -66,20 +78,31 @@ class ProductController extends Controller
      */
     public function update($id, ProductRequest $request)
     {
-        $product = Product::where('id', $id)->get()->first();
+        try {
+            $product = Product::where('id', $id)->get()->first();
        
-        if (is_null($product)) {
-            return responder()->error('error', 'O produto não foi encontrado!')->respond();
-        }
-        
-        if ($product->user_id != auth()->user()->id) {
-         
-            return responder()->error('error', 'Você não tem permissão para editar este produto')->respond();
-        };
+            if (is_null($product)) {
+                throw new \Exception(trans('messages.products.not_found'), 400);
+            }
+            
+            if ($product->user_id != auth()->user()->id) {    
+                throw new \Exception(trans('messages.products.not_permission'), 400);
+            };
+    
+            $product = $this->service->update($product, $request);
+          
+            return responder()
+                   ->success($product, ProductTransformer::class)
+                   ->meta(['message' => trans('messages.products.updated')])
+                   ->respond(200);
 
-        $product = $this->service->update($product, $request);
-      
-        return responder()->success($product)->respond();
+        } catch (\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }
+
     }
     
     /**
@@ -89,20 +112,30 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::where('id', $id)->get()->first();
+        try {
+            $product = Product::where('id', $id)->get()->first();
        
-        if (is_null($product)) {
-            return responder()->error('error', 'O produto não foi encontrado!')->respond();
+            if (is_null($product)) {
+                throw new \Exception(trans('messages.products.not_found'), 400);
+            }
+            
+            if ($product->user_id != auth()->user()->id) {    
+                throw new \Exception(trans('messages.products.not_permission'), 400);
+            };
+    
+            $product->delete();
+
+            return responder()
+            ->success()
+            ->meta(['message' => trans('messages.products.deleted')])
+            ->respond(200);
+
+        } catch (\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
         }
-        
-        if ($product->user_id != auth()->user()->id) {
-         
-            return responder()->error('error', 'Você não tem permissão para deletar este produto')->respond();
-        };
-
-        $product->delete();
-
-        return responder()->success(['produto deletado com sucesso'])->respond();
     }
     
     /**
@@ -112,18 +145,25 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::where('id', $id)->get()->first();
-       
-        if (is_null($product)) {
-            return responder()->error('error', 'O produto não foi encontrado!')->respond();
+        try {
+
+            $product = Product::where('id', $id)->get()->first();
+
+            if (is_null($product)) {
+                throw new \Exception(trans('messages.products.not_found'), 400);
+            }
+            
+            if ($product->user_id != auth()->user()->id) {    
+                throw new \Exception(trans('messages.products.not_permission'), 400);
+            };;
+
+            return responder()->success($product, ProductTransformer::class)->respond();
+
+        } catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
         }
-
-        if ($product->user_id != auth()->user()->id) {
-            return responder()->error('error', 'Você não tem permissão para visualizar este produto')->respond();
-        };
-
-        $product = Product::where('id', $product->id)->latest()->paginate();
-
-        return responder()->success($product)->respond();
     }
 }
