@@ -9,19 +9,6 @@ use App\Transformers\Users\UserTransformer;
 
 class MeController extends Controller
 {
-    private $service;
-    
-    /**
-     * __construct
-     *
-     * @param  mixed $service
-     */
-    public function __construct(UserService $service)
-    {
-        $this->middleware('auth:api');
-        $this->service = $service;
-    }
-    
     /**
      * index
      *
@@ -38,6 +25,7 @@ class MeController extends Controller
      * update
      *
      * @param  MeUpdateRequest $request
+     * @param  getMeAction $action
      */
     public function update(MeUpdateRequest $request, getMeAction $action)
     {

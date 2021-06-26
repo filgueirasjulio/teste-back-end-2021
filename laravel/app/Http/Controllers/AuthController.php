@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AuthForgotPasswordRequest;
+use App\Services\AuthService;
+use App\Actions\Auth\loginAction;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
-use App\Http\Requests\AuthResetPasswordRequest;
+use App\Transformers\Auth\LoginTransformer;
 use App\Http\Requests\AuthVerifyEmailRequest;
-use App\Services\AuthService;
+use App\Http\Requests\AuthResetPasswordRequest;
+use App\Http\Requests\AuthForgotPasswordRequest;
 
 class AuthController extends Controller
 {
@@ -30,15 +32,11 @@ class AuthController extends Controller
      * @param  AuthLoginRequest $request
      * @throws LoginInvalidException
      */
-    public function login(AuthLoginRequest $request)
+    public function login(AuthLoginRequest $request, loginAction $action)
     {
-        $inputs = $request->validated();
+        $user = $action->execute($request->validated());
 
-        $token = $this->service->login($inputs);
-
-        $user = auth()->user();
-
-        return responder()->success([$user, $token])->respond();
+        return responder()->success($user, LoginTransformer::class)->respond();
     }
 
     /**
