@@ -16,9 +16,17 @@ class MeController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+       try {
+            $user = auth()->user();
   
-        return responder()->success($user, UserTransformer::class)->respond();
+            return responder()->success($user, UserTransformer::class)->respond();
+       
+        } catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }     
     }
     
     /**
@@ -29,8 +37,16 @@ class MeController extends Controller
      */
     public function update(MeUpdateRequest $request, getMeAction $action)
     {
-        $user = $action->execute(auth()->user(), $request->validated());
+        try {
+            $user = $action->execute(auth()->user(), $request->validated());
 
-        return responder()->success($user, UserTransformer::class)->respond();
+            return responder()->success($user, UserTransformer::class)->respond();
+        
+        } catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }
     }
 }

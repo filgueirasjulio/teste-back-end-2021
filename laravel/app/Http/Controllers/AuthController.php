@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Auth\forgotAction;
 use App\Services\AuthService;
 use App\Actions\Auth\loginAction;
+use App\Actions\Auth\registerAction;
+use App\Actions\Auth\resetAction;
+use App\Actions\Auth\verifyEmailAction;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
 use App\Transformers\Auth\LoginTransformer;
+use App\Transformers\Users\UserTransformer;
 use App\Http\Requests\AuthVerifyEmailRequest;
 use App\Http\Requests\AuthResetPasswordRequest;
 use App\Http\Requests\AuthForgotPasswordRequest;
@@ -34,9 +39,21 @@ class AuthController extends Controller
      */
     public function login(AuthLoginRequest $request, loginAction $action)
     {
-        $user = $action->execute($request->validated());
+        try {
+            $user = $action->execute($request->validated());
 
-        return responder()->success($user, LoginTransformer::class)->respond();
+            return responder()
+                    ->success($user, LoginTransformer::class)
+                    ->meta(['message' => trans('messages.auth.login')])
+                    ->respond();
+
+        } catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }
+
     }
 
     /**
@@ -44,13 +61,22 @@ class AuthController extends Controller
      *
      * @param  AuthRegisterRequest $request
      */
-    public function register(AuthRegisterRequest $request)
+    public function register(AuthRegisterRequest $request, registerAction $action)
     {
-        $inputs = $request->validated();
+        try {
+            $user = $action->execute($request->validated());
+   
+            return responder()
+                   ->success($user, UserTransformer::class)
+                   ->meta(['message' => trans('messages.auth.register')])
+                   ->respond();
 
-        $user = $this->service->register($inputs);
+        } catch(\Exception $exception) {
 
-        return responder()->success($user->toArray())->respond();
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }  
     }
 
     /**
@@ -59,13 +85,22 @@ class AuthController extends Controller
      * @param  AuthVerifyEmailRequest $request
      * @throws VerifyEmailTokenInvalidException
      */
-    public function verifyEmail(AuthVerifyEmailRequest $request)
+    public function verifyEmail(AuthVerifyEmailRequest $request, verifyEmailAction $action)
     {
-        $input = $request->validated();
+        try {
+            $user = $action->execute($request->validated());
 
-        $user = $this->service->verifyEmail($input["token"]);
+            return responder()
+                   ->success($user, UserTransformer::class)
+                   ->meta(['message' => trans('messages.auth.verify_email')])
+                   ->respond();
 
-        return responder()->success($user->toArray())->respond();
+        } catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }  
     }
 
     /**
@@ -74,22 +109,40 @@ class AuthController extends Controller
      * @param  AuthForgotPasswordRequest $request
      * @return void
      */
-    public function forgotPassword(AuthForgotPasswordRequest $request)
+    public function forgotPassword(AuthForgotPasswordRequest $request, forgotAction $action)
     {
-        $input = $request->validated();
-
-        $this->service->forgotPassword($input["email"]);
+        try {
+            $user = $action->execute($request->validated());
         
-        return responder()->success(['E-mail para recuperação de senha enviado!'])->respond();
+            return responder()
+                ->success($user, UserTransformer::class)
+                ->meta(['message' => trans('messages.auth.forgot_password')])
+                ->respond();
+                
+        }  catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }  
     }
 
-    public function resetPassword(AuthResetPasswordRequest $request)
+    public function resetPassword(AuthResetPasswordRequest $request, resetAction $action)
     {
-        $inputs = $request->validated();
+        try {
+            $user = $action->execute($request->validated());
+        
+            return responder()
+                ->success($user, UserTransformer::class)
+                ->meta(['message' => trans('messages.auth.reset_password')])
+                ->respond();
 
-        $this->service->resetPassword($inputs);
+        }  catch(\Exception $exception) {
 
-        return responder()->success(['Senha recuperada com sucesso'])->respond();
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        } 
     }
 
     public function logout()

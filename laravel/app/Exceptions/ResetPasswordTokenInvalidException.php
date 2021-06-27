@@ -6,7 +6,7 @@ use Exception;
 
 class ResetPasswordTokenInvalidException extends Exception
 {
-    protected $message = 'Reset password token not valid.';
+    protected $message = 'Reset password token não é válido';
 
     public function render()
     {

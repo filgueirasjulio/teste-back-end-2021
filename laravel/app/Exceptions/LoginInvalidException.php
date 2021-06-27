@@ -6,7 +6,7 @@ use Exception;
 
 class LoginInvalidException extends Exception
 {
-    protected $message = 'Email and password don\'t match';
+    protected $message = 'E-mail e/ou senha incorretos';
 
     public function render()
     {

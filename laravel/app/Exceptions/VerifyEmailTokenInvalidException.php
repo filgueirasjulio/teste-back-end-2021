@@ -6,7 +6,7 @@ use Exception;
 
 class VerifyEmailTokenInvalidException extends Exception
 {
-    protected $message = 'Token not valid.';   
+    protected $message = 'Token não é válido.';   
      
     /**
      * @return [type]
