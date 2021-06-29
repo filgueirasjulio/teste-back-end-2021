@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Services\ProductService;
 use App\Http\Requests\ProductRequest;
+use Illuminate\Support\Facades\Cache;
 use App\Actions\Products\getProductAction;
-use App\Actions\Products\deleteProductAction;
 use App\Actions\Products\storeProductAction;
+use App\Actions\Products\deleteProductAction;
 use App\Actions\Products\updateProductAction;
 use App\Transformers\Products\ProductTransformer;
 
 class ProductController extends Controller
 {
+    public $product;
+
     /**
      * index
      *
@@ -115,9 +118,17 @@ class ProductController extends Controller
     public function show($id, getProductAction $action)
     {
         try {
-            $product = $action->execute($id);
+            $cachedProduct = Cache::get('product_' . $id);
+            
+            if (isset($cachedProduct)) {
+                $this->product = $cachedProduct;
 
-            return responder()->success($product, ProductTransformer::class)->respond();
+            } else {
+                $this->product = $action->execute($id);
+                $cachedProduct = Cache::put('product_' . $id, $this->product, now()->addMinutes(10));
+            }
+         
+            return responder()->success($this->product, ProductTransformer::class)->respond();
 
         } catch(\Exception $exception) {
 

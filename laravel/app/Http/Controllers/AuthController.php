@@ -18,19 +18,6 @@ use App\Http\Requests\AuthForgotPasswordRequest;
 
 class AuthController extends Controller
 {
-    private $service;
-
-    /**
-     * __construct
-     *
-     * @param  AuthService $service
-     * @return void
-     */
-    public function __construct(AuthService $service)
-    {
-        $this->service = $service;
-    }
-
     /**
      * login
      *
