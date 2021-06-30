@@ -71,7 +71,10 @@ class ProductController extends Controller
     public function update($id, ProductRequest $request, updateProductAction $action)
     {
         try {
+            
             $product = $action->execute($id, $request);
+
+            Cache::set('product_' . $id, $product);
           
             return responder()
                    ->success($product, ProductTransformer::class)
@@ -96,6 +99,7 @@ class ProductController extends Controller
     {
         try {
             $product = $action->execute($id);
+            Cache::forget('product_' . $id);
           
             return responder()
             ->success()
@@ -125,7 +129,7 @@ class ProductController extends Controller
 
             } else {
                 $this->product = $action->execute($id);
-                $cachedProduct = Cache::put('product_' . $id, $this->product, now()->addMinutes(10));
+                $cachedProduct = Cache::put('product_' . $id, $this->product, now()->addMinutes(20));
             }
          
             return responder()->success($this->product, ProductTransformer::class)->respond();
