@@ -5,7 +5,7 @@ namespace App\Actions\Auth;
 use App\Exceptions\LoginInvalidException;
 use App\Support\Contracts\Action\ActionInterface;
 
-class loginAction implements ActionInterface
+class LoginAction implements ActionInterface
 {
     /**
      *

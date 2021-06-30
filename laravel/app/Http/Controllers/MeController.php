@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\UserService;
-use App\Actions\Users\getMeAction;
+use App\Actions\Users\GetMeAction;
 use App\Http\Requests\MeUpdateRequest;
 use App\Transformers\Users\UserTransformer;
 
@@ -35,7 +35,7 @@ class MeController extends Controller
      * @param  MeUpdateRequest $request
      * @param  getMeAction $action
      */
-    public function update(MeUpdateRequest $request, getMeAction $action)
+    public function update(MeUpdateRequest $request, GetMeAction $action)
     {
         try {
             $user = $action->execute(auth()->user(), $request->validated());

@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use App\Events\UserRegistered;
 use App\Support\Contracts\Action\ActionInterface;
 
-class registerAction implements ActionInterface
+class RegisterAction implements ActionInterface
 {
     /**
      *

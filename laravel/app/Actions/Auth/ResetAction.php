@@ -7,7 +7,7 @@ use App\Models\PasswordReset;
 use App\Support\Contracts\Action\ActionInterface;
 use App\Exceptions\ResetPasswordTokenInvalidException;
 
-class resetAction implements ActionInterface
+class ResetAction implements ActionInterface
 {
     /**
      *

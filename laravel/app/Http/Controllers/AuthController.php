@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Auth\forgotAction;
-use App\Services\AuthService;
-use App\Actions\Auth\loginAction;
-use App\Actions\Auth\registerAction;
-use App\Actions\Auth\resetAction;
-use App\Actions\Auth\verifyEmailAction;
+use App\Actions\Auth\ForgotAction;
+use App\Actions\Auth\LoginAction;
+use App\Actions\Auth\RegisterAction;
+use App\Actions\Auth\ResetAction;
+use App\Actions\Auth\VerifyEmailAction;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
 use App\Transformers\Auth\LoginTransformer;
@@ -24,7 +23,7 @@ class AuthController extends Controller
      * @param  AuthLoginRequest $request
      * @throws LoginInvalidException
      */
-    public function login(AuthLoginRequest $request, loginAction $action)
+    public function login(AuthLoginRequest $request, LoginAction $action)
     {
         try {
             $user = $action->execute($request->validated());
@@ -48,7 +47,7 @@ class AuthController extends Controller
      *
      * @param  AuthRegisterRequest $request
      */
-    public function register(AuthRegisterRequest $request, registerAction $action)
+    public function register(AuthRegisterRequest $request, RegisterAction $action)
     {
         try {
             $user = $action->execute($request->validated());
@@ -72,7 +71,7 @@ class AuthController extends Controller
      * @param  AuthVerifyEmailRequest $request
      * @throws VerifyEmailTokenInvalidException
      */
-    public function verifyEmail(AuthVerifyEmailRequest $request, verifyEmailAction $action)
+    public function verifyEmail(AuthVerifyEmailRequest $request, VerifyEmailAction $action)
     {
         try {
             $user = $action->execute($request->validated());
@@ -96,7 +95,7 @@ class AuthController extends Controller
      * @param  AuthForgotPasswordRequest $request
      * @return void
      */
-    public function forgotPassword(AuthForgotPasswordRequest $request, forgotAction $action)
+    public function forgotPassword(AuthForgotPasswordRequest $request, ForgotAction $action)
     {
         try {
             $user = $action->execute($request->validated());
@@ -114,7 +113,7 @@ class AuthController extends Controller
         }  
     }
 
-    public function resetPassword(AuthResetPasswordRequest $request, resetAction $action)
+    public function resetPassword(AuthResetPasswordRequest $request, ResetAction $action)
     {
         try {
             $user = $action->execute($request->validated());

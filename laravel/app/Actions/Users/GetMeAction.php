@@ -4,7 +4,7 @@ namespace App\Actions\Users;
 
 use App\Support\Contracts\Action\ActionInterface;
 
-class getMeAction implements ActionInterface
+class GetMeAction implements ActionInterface
 {
     public function execute($user, $request)
     {        

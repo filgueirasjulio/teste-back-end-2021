@@ -5,7 +5,7 @@ namespace App\Actions\Products;
 use App\Models\Product;
 use App\Support\Contracts\Action\ActionInterface;
 
-class getProductAction implements ActionInterface
+class GetProductAction implements ActionInterface
 {
     public function execute($id)
     {
@@ -17,7 +17,7 @@ class getProductAction implements ActionInterface
           
           if ($product->user_id != auth()->user()->id) {    
               throw new \Exception(trans('messages.products.not_permission'), 400);
-          };
+          }
 
         return $product;
     }

@@ -5,7 +5,7 @@ namespace App\Actions\Products;
 use App\Models\Product;
 use App\Support\Contracts\Action\ActionInterface;
 
-class storeProductAction implements ActionInterface
+class StoreProductAction implements ActionInterface
 {
     public function execute($request)
     {        

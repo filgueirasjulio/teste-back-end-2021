@@ -2,13 +2,21 @@
 
 namespace App\Actions\Products;
 
+use App\Actions\Products\GetProductAction;
 use App\Support\Contracts\Action\ActionInterface;
 
-class updateProductAction implements ActionInterface
+class UpdateProductAction implements ActionInterface
 {
+    public $action;
+
+    public function __construct(GetProductAction $getAction)
+    {
+        $this->action = $getAction;
+    }
+
     public function execute($id, $request)
     {
-        $action = new getProductAction();
+        $action = $this->action;
 
         $product = $action->execute($id);
         

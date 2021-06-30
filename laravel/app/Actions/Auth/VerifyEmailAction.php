@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Support\Contracts\Action\ActionInterface;
 use App\Exceptions\VerifyEmailTokenInvalidException;
 
-class verifyEmailAction implements ActionInterface
+class VerifyEmailAction implements ActionInterface
 {
     /**
      *

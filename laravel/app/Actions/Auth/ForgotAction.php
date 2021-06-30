@@ -8,7 +8,7 @@ use App\Models\PasswordReset;
 use App\Events\ForgotPassword;
 use App\Support\Contracts\Action\ActionInterface;
 
-class forgotAction implements ActionInterface
+class ForgotAction implements ActionInterface
 {
     /**
      *

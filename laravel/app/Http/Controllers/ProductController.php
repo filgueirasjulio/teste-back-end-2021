@@ -6,10 +6,10 @@ use App\Models\Product;
 use App\Services\ProductService;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Cache;
-use App\Actions\Products\getProductAction;
-use App\Actions\Products\storeProductAction;
-use App\Actions\Products\deleteProductAction;
-use App\Actions\Products\updateProductAction;
+use App\Actions\Products\GetProductAction;
+use App\Actions\Products\StoreProductAction;
+use App\Actions\Products\DeleteProductAction;
+use App\Actions\Products\UpdateProductAction;
 use App\Transformers\Products\ProductTransformer;
 
 class ProductController extends Controller
@@ -22,9 +22,17 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::paginate();
+        try {
+            $products = Product::paginate();
 
-        return responder()->success($products, ProductTransformer::class)->respond();
+            return responder()->success($products, ProductTransformer::class)->respond();
+
+        } catch(\Exception $exception) {
+
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }  
     }
     
     /**
@@ -33,11 +41,20 @@ class ProductController extends Controller
      */
     public function userProducts()
     {
-        $id = auth()->user()->id;
+        try {
+            $id = auth()->user()->id;
 
-        $product = Product::where('user_id', $id)->latest()->paginate();
+            $product = Product::where('user_id', $id)->latest()->paginate();
+    
+            return responder()->success($product, ProductTransformer::class)->respond();
+        
+        }   catch(\Exception $exception) {
 
-        return responder()->success($product, ProductTransformer::class)->respond();
+            return responder()
+            ->error($exception->getCode(), $exception->getMessage())
+            ->respond(400);
+        }
+
     }
     
     /**
@@ -45,7 +62,7 @@ class ProductController extends Controller
      *
      * @param ProductRequest $request
      */
-    public function store(ProductRequest $request, storeProductAction $action)
+    public function store(ProductRequest $request, StoreProductAction $action)
     {
         try {
             $product = $action->execute($request);
@@ -68,7 +85,7 @@ class ProductController extends Controller
      *
      * @param ProductRequest $request
      */
-    public function update($id, ProductRequest $request, updateProductAction $action)
+    public function update($id, ProductRequest $request, UpdateProductAction $action)
     {
         try {
             
@@ -95,7 +112,7 @@ class ProductController extends Controller
      *
      * @param  mixed $id
      */
-    public function destroy($id, deleteProductAction $action)
+    public function destroy($id, DeleteProductAction $action)
     {
         try {
             $product = $action->execute($id);
@@ -119,14 +136,13 @@ class ProductController extends Controller
      *
      * @param  mixed $id
      */
-    public function show($id, getProductAction $action)
+    public function show($id, GetProductAction $action)
     {
         try {
             $cachedProduct = Cache::get('product_' . $id);
             
             if (isset($cachedProduct)) {
                 $this->product = $cachedProduct;
-
             } else {
                 $this->product = $action->execute($id);
                 $cachedProduct = Cache::put('product_' . $id, $this->product, now()->addMinutes(20));
